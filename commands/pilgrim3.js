@@ -1,6 +1,6 @@
 exports.name = 'one two three four';
 exports.hidden = true;
-exports.enabled = true;
+exports.enabled = false;
 exports.matchStart = false;
 exports.handler = function(data) {
     if (config.database.usedb) {

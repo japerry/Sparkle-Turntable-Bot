@@ -1,4 +1,4 @@
-exports.name = 'pulldj';
+exports.name = '/pull';
 exports.hidden = true;
 exports.enabled = true;
 exports.matchStart = false;

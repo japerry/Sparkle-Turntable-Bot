@@ -1,6 +1,6 @@
 exports.name = '.pilgrim';
 exports.hidden = false;
-exports.enabled = true;
+exports.enabled = false;
 exports.matchStart = false;
 exports.handler = function(data) {
     if (config.database.usedb) {

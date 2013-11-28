@@ -1,6 +1,6 @@
 //If waitlist is enabled, adds a user to the waitlist
 
-exports.name = '+q';
+exports.name = '+';
 exports.hidden = false;
 exports.enabled = true;
 exports.matchStart = false;
