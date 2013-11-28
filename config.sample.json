@@ -1,15 +1,15 @@
 {"botinfo":       {
-	"auth":   "auth+live+#####",
-	"userid": "#####",
-	"botname":"meow",
+	"auth":   "auth+live+VQdYMKpFkcjHxwRJiYnXqxvQ",
+	"userid": "5156af69eb35c12f5e5fd936",
+	"botname":"trancebot",
 	"laptop": "linux"
 },
-	"roomid":     "4f1e02590c4cc807574030f1",
+	"roomid":     "4e16479214169c128d049d90",
 	"admin":      "#####",
 	"database":   {
 		"usedb":     true,
-		"dbname":    "nodejs_mysql_treehouse",
-		"logchat":   false,
+		"dbname":    "tt_tranceout",
+		"logchat":   true,
 		"tablenames":{
 			"song":   "SONGLIST",
 			"chat":   "CHATLOG",
@@ -18,13 +18,13 @@
 			"holiday":"HOLIDAY_GREETINGS"
 		},
 		"login":     {
-			"user":    "#####",
-			"password":"#####",
+			"user":    "ttbot",
+			"password":"turntablerules",
 			"host":    "localhost"
 		}
 	},
 	"lastfm":     {
-		"useapi":   true,
+		"useapi":   false,
 		"lastfmkey":"#####"
 	},
 	"http":       {
@@ -36,16 +36,16 @@
 		"respond":        true,
 		"announcebonus":  true,
 		"reportsongstats":true,
-		"welcomeusers":   true,
-		"welcomepm":      true,
+		"welcomeusers":   false,
+		"welcomepm":      false,
 		"alwayspm":       false,
-		"pmgreet":        "Welcome to Indie/Classic Alternative 1 & Done! No queue, fastest finger, play one song and step down. Full rules at http://tinyurl.com/63hr2jl . Type 'commands' to see a list of commands I can respond to.",
+		"pmgreet":        "Welcome to TO!",
 		"greeting":       "Welcome, ",
-		"ownerresponse":  "sharedferret made me!",
+		"ownerresponse":  "Moodance made me!",
 		"sing":           true,
 		"rules":          {
-			"description":"No queue, fastest finger, play two songs and step down",
-			"link":       "http://tinyurl.com/63hr2jl"
+			"description":"Press + to Queue up, ? for current Queue, and Trance Only! Play two songs and step down, or I'll do it for ya ;-)",
+			"link":       "http://j.mp/TO_Guidelines"
 		}
 	},
 	"consolelog": false,
@@ -53,20 +53,20 @@
 	"djing":      {
 		"botdj": true,
 		"minDjs":1,
-		"maxDjs":3
+		"maxDjs":2
 	},
 	"enforcement":{
 		"enforceroom":true,
-		"waitlist":   false,
+		"waitlist":   true,
 		"songslimit": {
 			"limitsongs":true,
 			"maxsongs":  2,
 			"minDjs":    5
 		},
 		"stepuprules":{
-			"waittostepup":true,
+			"waittostepup":false,
 			"waittype":    "SONGS",
-			"length":      4
+			"length":      1
 		},
 		"ffarules":   {
 			"multiplespotffa":true,
@@ -76,13 +76,10 @@
 		"idle":       {
 			"idlerules":      true,
 			"idlewarntime":   10,
-			"idleremovaltime":12,
-			"minDjs":         5
+			"idleremovaltime":20,
+			"minDjs":         3
 		}
 	},
 	"maintenance":{
 		"autorejoin":true
-	},
-    modnotice: false,
-    webstatus: false
-}
+	}}

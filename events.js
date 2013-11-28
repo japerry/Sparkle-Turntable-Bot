@@ -28,28 +28,28 @@ exports.roomChangedEventHandler = function(data) {
         }
     }
 	checkDjs();
-    
+
     //If the bonus flag is set to VOTE, find the number of awesomes needed for
     //the current song
     if (config.bonusvote == 'VOTE') {
         bonusvotepoints = getVoteTarget();
     }
-    
-    
+
+
     //Set bot's laptop type
     bot.modifyLaptop(config.botinfo.laptop);
-    
+
     //Repopulates usersList array.
     var users = data.users;
     for (i in users) {
         var user = users[i];
         usersList[user.userid] = user;
     }
-    
+
     //Adds all active users to the users table - updates lastseen if we've seen
     //them before, adds a new entry if they're new or have changed their username
     //since the last time we've seen them
-    
+
     if (config.database.usedb) {
         for (i in users) {
             client.query('INSERT INTO ' + config.database.dbname + '.' + config.database.tablenames.user
@@ -58,7 +58,7 @@ exports.roomChangedEventHandler = function(data) {
                 [users[i].userid, users[i].name]);
         }
     }
-    
+
 }
 
 //Runs when a user updates their vote
@@ -68,7 +68,18 @@ exports.updateVoteEventHandler = function (data) {
     currentsong.up = data.room.metadata.upvotes;
     currentsong.down = data.room.metadata.downvotes;
     currentsong.listeners = data.room.metadata.listeners;
-    
+
+    if (currentsong.up - currentsong.down < -1 ) {
+        bot.speak('@, the room has decided this song does not belong here. You have 5 seconds to skip!');
+ 		usertostep = currentsong.djid;
+        setTimeout(function() {
+     				if(!userstepped) {
+                        addCooldown(usertostep);
+     					bot.remDj(usertostep);
+     				}
+     			}, 10000);
+    }
+
     //If the vote exceeds the bonus threshold and the bot's bonus mode
     //is set to VOTE, give a bonus point
     if ((config.bonusvote == 'VOTE') && !bonusvote && (currentsong.djid != config.botinfo.userid)) {
@@ -104,7 +115,7 @@ exports.updateVoteEventHandler = function (data) {
         if (data.room.metadata.votelog[0][1] == 'up') {
             console.log('\u001b[32m[ Vote ] (+'
                 + data.room.metadata.upvotes + ' -' + data.room.metadata.downvotes
-                + ') ' + usersList[data.room.metadata.votelog[0][0]].name + '\u001b[0m');
+                + ') ');
         } else {
             console.log('\u001b[31m[ Vote ] (+'
                 + data.room.metadata.upvotes + ' -' + data.room.metadata.downvotes
@@ -120,14 +131,21 @@ exports.registeredEventHandler = function (data) {
     if (config.consolelog) {
         console.log('\u001b[34m[Joined] ' + data.user[0].name + '\u001b[0m');
     }
-    
+
+    //Stop DJing, Waitlist, and Enforcment if TO Bot is in the room.
+    if (('4e485d0ca3f751044e0ad952' in usersList) && config.enforcement.waitlist == true && config.enforcement.enforceroom == true) {
+        config.enforcement.waitlist = false;
+        config.enforcement.enforceroom = false;
+        bot.speak('Hello Trance Out! Transfering over management abilities...');
+    }
+
     //Add user to usersList
     var user = data.user[0];
     usersList[user.userid] = user;
     if (currentsong != null) {
         currentsong.listeners++;
     }
-    
+
     //If the bonus flag is set to VOTE, find the number of awesomes needed
     if (config.bonusvote == 'VOTE') {
         bonusvotepoints = getVoteTarget();
@@ -138,11 +156,32 @@ exports.registeredEventHandler = function (data) {
     //Wait for user to join chatserver before welcoming
 	//Don't welcome guests
     if(config.responses.welcomeusers && user.registered != null) {
-        setTimeout(function () {
-            welcomeUser(user.name, user.userid);
-        }, 1000);
+        if (config.database.usedb && !config.responses.alwayspm) {
+                   client.query('SELECT lastseen, NOW() AS now FROM ' + config.database.dbname + '.' + config.database.tablenames.user
+                       + ' WHERE userid LIKE \'' + user.userid + '\' ORDER BY lastseen desc LIMIT 1',
+                       function cb(error, results, fields) {
+                           if (results != null && results[0] != null) {
+                               var time = results[0]['lastseen'];
+                               var curtime = results[0]['now'];
+                               //Send a welcome PM if user hasn't joined in 36+ hours
+                               if ((new Date().getTime() - time.getTime()) > 129600000) {
+                                   setTimeout(function () {
+                                       welcomeUser(user.name, user.userid);
+                                   }, 1000);
+                               }
+                           } else {
+                               setTimeout(function () {
+                                   welcomeUser(user.name, user.userid);
+                               }, 1000);
+                           }
+                   });
+               } else {
+                    setTimeout(function () {
+                        welcomeUser(user.name, user.userid);
+                    }, 1000);
+               }
     }
-    
+
     if (config.responses.welcomepm) {
         if (config.database.usedb && !config.responses.alwayspm) {
             client.query('SELECT lastseen, NOW() AS now FROM ' + config.database.dbname + '.' + config.database.tablenames.user
@@ -166,14 +205,14 @@ exports.registeredEventHandler = function (data) {
                 destination: 'pm', userid: user.userid});
         }
     }
-    
+
     //Add user to user table
     if (config.database.usedb) {
         client.query('INSERT INTO ' + config.database.dbname + '.' + config.database.tablenames.user
         + ' (userid, username, lastseen)'
             + 'VALUES (?, ?, NOW()) ON DUPLICATE KEY UPDATE lastseen = NOW()',
             [user.userid, user.name]);
-    
+
     //See if banned
         client.query('SELECT userid, banned_by, DATE_FORMAT(timestamp, \'%c/%e/%y\')'
             + ' FROM ' + config.database.dbname + '.' + config.database.tablenames.banned + ' WHERE userid LIKE \'' + user.userid + '\'',
@@ -194,9 +233,14 @@ exports.deregisteredEventHandler = function (data) {
         console.log('\u001b[36m[ Left ] ' + data.user[0].name + '\u001b[0m');
     }
 
-    
+    if (!('4e485d0ca3f751044e0ad952' in usersList) && config.enforcement.waitlist == false && config.enforcement.enforceroom == false) {
+        config.enforcement.waitlist = true;
+        config.enforcement.enforceroom = true;
+        bot.speak('Goodbye Trance Out! Turning into superbot!');
+    }
+
     currentsong.listeners--;
-    
+
     //If waitlist, hold for 30 secs then remove
     if (config.enforcement.waitlist) {
         for (i in waitlist) {
@@ -206,9 +250,9 @@ exports.deregisteredEventHandler = function (data) {
                         waitlist.splice(i, 1);
                     }
                 }, 30000);
-            }                               
+            }
         }
-    }    
+    }
     //Remove user from userlist
     //TODO: Replace this with a .splice fn
     delete usersList[data.user[0].userid];
@@ -234,8 +278,8 @@ exports.speakEventHandler = function (data) {
             [data.userid, inputtext]);
     }
 
-    //If it's a supported command, handle it    
-    
+    //If it's a supported command, handle it
+
     if (config.responses.respond) {
         handleCommand(data.name, data.userid, data.text.toLowerCase(), 'speak');
     }
@@ -268,13 +312,13 @@ exports.endSongEventHandler = function (data) {
     if (config.enforcement.enforceroom && usertostep && !userstepped) {
 		bot.remDj(usertostep);
     }
-    
+
     //Used for room enforcement
     //Reduces the number of songs remaining for the current DJ by one
     if (config.enforcement.enforceroom) {
         reducePastDJCounts(currentsong.djid);
     }
-    
+
 
     //Report song stats in chat
     if (config.responses.reportsongstats) {
@@ -302,6 +346,10 @@ exports.endSongEventHandler = function (data) {
 //Populates currentsong data, tells bot to step down if it just played a song,
 //logs new song in console, auto-awesomes song
 exports.newSongEventHandler = function (data) {
+    //Skip Song if there are other DJs up
+    if (isBot(data.room.metadata.current_dj) && djs.length != 1) {
+        bot.stopSong();
+    }
     //Populate new song data in currentsong
     populateSongData(data);
 
@@ -316,7 +364,7 @@ exports.newSongEventHandler = function (data) {
     if (config.consolelog) {
         console.log('\u001b[37mNow Playing: ' + currentsong.artist + ' - ' + currentsong.song + '\u001b[0m');
     }
-    
+
     //Reset bonus points
     bonusvote = false;
     bonuspoints = new Array();
@@ -337,7 +385,7 @@ exports.newSongEventHandler = function (data) {
 			}
 		}, time * currentsong.metadata.length * 1000);
 	}
-    
+
     //Decrement partialdjs list
     for (i in partialdjs) {
         partialdjs[i].rem--;
@@ -345,7 +393,7 @@ exports.newSongEventHandler = function (data) {
             partialdjs.splice(i, 1);
         }
     }
-    
+
     //If the botSing is enabled, see if there are any lyrics for this song
     if (config.responses.sing) {
         //Try to find lyrics from singalong.js
@@ -353,7 +401,7 @@ exports.newSongEventHandler = function (data) {
         if (lyrics != null) {
             //If lyrics were found, loop through and set a timeout for each
             for (i in lyrics) {
-                var fnc = function(y) { 
+                var fnc = function(y) {
                     setTimeout(function() { bot.speak(lyrics[y][0]); }, lyrics[y][1]);
                 }(i);
             }
@@ -367,8 +415,16 @@ exports.remDjEventHandler = function (data) {
     //Log in console
     //console.log(data.user[0]);
     if (config.consolelog) {
+        console.log(data);
         console.log('\u001b[35m[ - DJ ] '+ data.user[0].name + '\u001b[0m');
     }
+    if(nocooldown == false && data.hasOwnProperty("modid")) {
+        console.log("adding cooldown points");
+        addCooldown(data.user[0].userid);
+    } else {
+        delete cooldown[data.user[0].userid];
+    }
+    nocooldown = false;
 
     //Adds user to 'step down' vars
     //Used by enforceRoom()
@@ -376,12 +432,12 @@ exports.remDjEventHandler = function (data) {
         //Reset stepdown vars
         userstepped = true;
         usertostep = null;
-        
+
         if (config.enforcement.enforceroom && config.enforcement.stepuprules.waittostepup) {
             addToPastDJList(data.user[0].userid);
         }
     }
-    
+
     //Set time this event occurred for enforcing one and down room policy
     if (legalstepdown) {
         enforcementtimeout = new Date();
@@ -417,12 +473,15 @@ exports.remDjEventHandler = function (data) {
 		checkDjs();
 	}
 
-    
+    if(isBot(currentsong.djid) && djs.length == 1) {
+        bot.remDj();
+    }
+
     //If more than one DJ spot is open, set free-for-all mode to true
     if (config.enforcement.enforceroom && config.enforcement.ffarules.multiplespotffa) {
         ffa = (djs.length < 4);
     }
-    
+
     if ((config.enforcement.waitlist) && (waitlist.length > 0) && legalstepdown) {
         announceNextPersonOnWaitlist();
     }
@@ -436,7 +495,13 @@ exports.addDjEventHandler = function(data) {
     if (config.consolelog) {
         console.log('\u001b[35m[ + DJ ] ' + data.user[0].name + '\u001b[0m');
     }
-    
+
+    //Boot if they are in 'time-out'
+    if(checkCooldown(data.user[0].userid)) {
+        nocooldown = true;
+
+    }
+
     //Add to DJ list
     if (config.enforcement.enforceroom) {
 		var toplay = Infinity;
@@ -461,10 +526,14 @@ exports.addDjEventHandler = function(data) {
 	// Check if the bot was added
 	if(isBot(data.user[0].userid)) {
 		isdjing = true;
+        //Skip the current song if bot is playing
+        if(currentsong.djid == config.botinfo.userid && djs.length > 1) {
+          bot.stopSong();
+        }
 	} else if(currentsong.djid != config.botinfo.userid) { // Don't remove the bot in th middle of a song
 		checkDjs();
 	}
-    
+
     if (config.enforcement.waitlist) {
         checkWaitlist(data.user[0].userid, data.user[0].name);
     }
@@ -479,22 +548,22 @@ exports.snagEventHandler = function(data) {
     if (config.consolelog) {
         console.log('[ Snag ] ' + usersList[data.userid].name);
     }
-    
+
     //Increase song snag count
     currentsong.snags++;
-    
+
     //If bonus is chat-based, increase bonus points count
     if (config.bonusvote == 'CHAT') {
         bonuspoints.push(usersList[data.userid].name);
     }
-    
+
     var target = getTarget();
     if((bonuspoints.length >= target) && !bonusvote && (config.bonusvote == 'CHAT') && (currentsong.djid != config.botinfo.userid)) {
         bot.speak('Bonus!');
         bot.vote('up');
         bot.snag();
         bonusvote = true;
-    }    
+    }
 }
 
 exports.bootedUserEventHandler = function(data) {
@@ -502,7 +571,7 @@ exports.bootedUserEventHandler = function(data) {
     if (config.consolelog) {
         console.log('\u001b[37m\u001b[41m[ Boot ] ' + (usersList[data.userid] != null ? usersList[data.userid].name : data.userid) + '\u001b[0m');
     }
-    
+
     //if the bot was booted, reboot
     if(config.botinfo.userid == data.userid) {
         console.log(config.botinfo.botname + ' was booted.', data);
@@ -556,7 +625,7 @@ exports.pmEventHandler = function(data) {
         bot.pm(data.senderid, 'Oh dear, something\'s gone wrong.');
     }
 }
- 
+
 
 exports.updateUserEventHandler = function(data) {
     //Update user name in users table
@@ -581,13 +650,13 @@ exports.removeModeratorEventHandler = function(data) {
     if (config.consolelog) {
         console.log('\u001b[33m\u001b[41m[ -Mod ] ' + usersList[data.userid].name + '\u001b[0m');
     }
-    
+
     for (i in moderators) {
         if (moderators[i] == data.userid) {
             moderators.splice(i, 1);
         }
     }
-    
+
     //If the bot admin was demodded, remod them
     if(config.admin == data.userid) {
         setTimeout(function() {
@@ -599,7 +668,7 @@ exports.removeModeratorEventHandler = function(data) {
 exports.httpRequestEventHandler = function(request, response) {
     var urlRequest = request.url;
     var queryArray = url.parse(urlRequest, true).query; //HTTP GET requests
-    
+
     var found = false;
     for (i in httpcommands) {
         if (httpcommands[i].enabled && (httpcommands[i].name == queryArray.command)) {

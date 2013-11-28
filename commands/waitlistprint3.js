@@ -4,16 +4,7 @@ exports.enabled = true;
 exports.matchStart = false;
 exports.handler = function(data) {
     if (config.enforcement.waitlist) {
-        var response = 'Queue: ';
-        var j = 0;
-        if (waitlist.length > 0) {
-            for (i in waitlist) {
-                j++;
-                response += ('[' + j + '] ' + waitlist[i].name + ', ');
-            }
-        } else {
-            response = 'The queue is empty.  ';
-        }
+        var response = 'Hello, '+data.name+'! Basic commands: Say \'#\' to view the queue size (currently '+waitlist.length+'). Add/remove yourself from queue with \'+\' and \'-\'. To DJ, please use the queue and be active (by voting/speaking) in the room.';
         output({text: response.substring(0, response.length - 2), destination: data.source,
             userid: data.userid});
     }
