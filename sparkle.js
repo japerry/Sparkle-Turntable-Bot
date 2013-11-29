@@ -906,6 +906,8 @@ global.handleCommand = function(name, userid, text, source) {
 	}
 
 	//Sends a PM to the user
+    //Commented out because PM don't work on PLUG yet
+    /*
 	if(text.toLowerCase() == (config.botinfo.botname + ', pm me')) {
 		if(source == 'speak') {
 			bot.pm('Hey there! Type "commands" for a list of commands.', userid);
@@ -913,5 +915,6 @@ global.handleCommand = function(name, userid, text, source) {
 			bot.pm('But... you PM\'d me that. Do you think I\'m stupid? >:T', userid);
 		}
 	}
+	*/
 }
 

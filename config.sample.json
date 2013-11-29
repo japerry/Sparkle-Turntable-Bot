@@ -1,11 +1,13 @@
 {"botinfo":       {
-	"auth":   "auth+live+VQdYMKpFkcjHxwRJiYnXqxvQ",
-	"userid": "5156af69eb35c12f5e5fd936",
-	"botname":"trancebot",
+    "twitter_username" : "tranceout_plug",
+    "twitter_password" : "dancem001o31",
+	"auth":   "yLfc9h17z9Kb68PtMsMDZDzDsHc=?_expires=STE0MDEyNDk4NTgKLg==&user_id=Uyc1Mjk4MTI0Mjk2ZmJhNTZkMjYzNDZjNDUnCnAxCi4=&v=STIKLg==",
+	"userid": "Uyc1Mjk4MTI0Mjk2ZmJhNTZkMjYzNDZjNDUnCnAxCi4",
+	"botname":"tranceout",
 	"laptop": "linux"
 },
-	"roomid":     "4e16479214169c128d049d90",
-	"admin":      "#####",
+	"roomid":     "tranceout",
+	"admin":      "50aeb73996fba52c3ca13ad6",
 	"database":   {
 		"usedb":     true,
 		"dbname":    "tt_tranceout",

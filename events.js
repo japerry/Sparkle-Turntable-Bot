@@ -36,9 +36,6 @@ exports.roomChangedEventHandler = function(data) {
     }
 
 
-    //Set bot's laptop type
-    bot.modifyLaptop(config.botinfo.laptop);
-
     //Repopulates usersList array.
     var users = data.users;
     for (i in users) {
@@ -182,6 +179,8 @@ exports.registeredEventHandler = function (data) {
                }
     }
 
+    /*
+     * Comment out, PLUG.DJ doesn't support PMing yet.
     if (config.responses.welcomepm) {
         if (config.database.usedb && !config.responses.alwayspm) {
             client.query('SELECT lastseen, NOW() AS now FROM ' + config.database.dbname + '.' + config.database.tablenames.user
@@ -205,6 +204,7 @@ exports.registeredEventHandler = function (data) {
                 destination: 'pm', userid: user.userid});
         }
     }
+    */
 
     //Add user to user table
     if (config.database.usedb) {
@@ -348,7 +348,7 @@ exports.endSongEventHandler = function (data) {
 exports.newSongEventHandler = function (data) {
     //Skip Song if there are other DJs up
     if (isBot(data.room.metadata.current_dj) && djs.length != 1) {
-        bot.stopSong();
+        bot.skipSong();
     }
     //Populate new song data in currentsong
     populateSongData(data);
@@ -586,6 +586,9 @@ exports.bootedUserEventHandler = function(data) {
     }
 }
 
+/*
+ * Comment out, there are no PM events!
+
 exports.pmEventHandler = function(data) {
 
 	// Update the last activity for the dj if it was sending the message and remove the warning
@@ -625,6 +628,7 @@ exports.pmEventHandler = function(data) {
         bot.pm(data.senderid, 'Oh dear, something\'s gone wrong.');
     }
 }
+*/
 
 
 exports.updateUserEventHandler = function(data) {
@@ -658,11 +662,12 @@ exports.removeModeratorEventHandler = function(data) {
     }
 
     //If the bot admin was demodded, remod them
-    if(config.admin == data.userid) {
-        setTimeout(function() {
-            bot.addModerator(config.admin);
-        }, 200);
-    }
+    // NOT SUPPORTED IN THE PLUG API YET!
+    //if(config.admin == data.userid) {
+    //    setTimeout(function() {
+    //       bot.addModerator(config.admin);
+    //    }, 200);
+    //}
 }
 
 exports.httpRequestEventHandler = function(request, response) {
