@@ -10,7 +10,8 @@ exports.readyEventHandler = function (data) {
 //Runs when the room is changed.
 //Updates the currentsong array and users array with new room data.
 exports.roomChangedEventHandler = function(data) {
-    moderators = data.room.metadata.moderator_id;
+    console.log(data);
+//    moderators = data.room.metadata.moderator_id;
 
     //Fill currentsong array with room data
     if ((data.room != null) && (data.room.metadata != null)) {

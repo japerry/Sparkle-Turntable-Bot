@@ -144,8 +144,16 @@ function initializeModules() {
 	}
 
 	bot = new Bot(config.botinfo.auth);
+    console.log("setting up a bot");
+    console.log(config);
+    bot.connect();
+    bot.on('connected', function() {
+      bot.joinRoom(config.room, function(data) {
+        console.log(JSON.stringify(data));
+      });
+    });
 
-    bot.connect(config.botinfo.roomid);
+
 
 	//Loads bot singalongs
 	if(config.responses.sing) {
