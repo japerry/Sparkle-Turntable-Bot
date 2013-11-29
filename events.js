@@ -11,6 +11,10 @@ exports.readyEventHandler = function (data) {
 //Updates the currentsong array and users array with new room data.
 exports.roomChangedEventHandler = function(data) {
     console.log(data);
+    if(!data) {
+      console.log('Error loading the room. Check your JSON file, or possibly plug.dj is denying requests. Sorry!');
+      process.exit(33);
+    }
     moderators = data.room.admins;
 
     //Fill currentsong array with room data
