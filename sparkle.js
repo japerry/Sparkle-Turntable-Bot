@@ -144,8 +144,7 @@ function initializeModules() {
 	}
 
 	bot = new Bot(config.botinfo.auth);
-    console.log("setting up a bot");
-    console.log(config);
+    console.log("Starting Up Sparkle Bot!");
     bot.connect();
     bot.on('connected', function() {
       bot.joinRoom(config.roomid, function(data) {

@@ -10,6 +10,7 @@ exports.readyEventHandler = function (data) {
 //Runs when the room is changed.
 //Updates the currentsong array and users array with new room data.
 exports.roomChangedEventHandler = function(data) {
+    console.log("Entering room");
     console.log(data);
     if(!data) {
       console.log('Error loading the room. Check your JSON file, or possibly plug.dj is denying requests. Sorry!');
