@@ -53,7 +53,7 @@
 	"consolelog": false,
 	"bonusvote":  "VOTE",
 	"djing":      {
-		"botdj": true,
+		"botdj": false,
 		"minDjs":1,
 		"maxDjs":2
 	},

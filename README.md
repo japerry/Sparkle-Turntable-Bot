@@ -1,6 +1,6 @@
 #Sparkle Turntable Bot
 
-A customizable Turntable.fm bot written in node.js utilizing [ttapi](https://github.com/alaingilbert/Turntable-API).
+A customizable Turntable.fm bot written in node.js utilizing [plugapi](https://github.com/alaingilbert/Turntable-API).
 
 This project is still maintained, but I don't have a lot of time for development (so updates will probably be slow). If you have new features or bugfixes, please submit a pull request.
 
@@ -17,7 +17,7 @@ Check out the [Get Started guide](https://github.com/sharedferret/Sparkle-Turnta
 
 This bot is written in Node.JS and utilizes Alain Gilbert's Turntable API.
 
-The bot can: 
+The bot can:
 
 * Respond to a set of commands in chat and through turntable's PM system
 * Awesome songs based on various systems

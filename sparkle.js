@@ -4,7 +4,7 @@
  *
  *  A Turntable.fm bot for the Indie/Classic Alternative 1 + Done room.
  *  Based on bot implementations by anamorphism and heatvision
- *  Uses node.js with node modules ttapi, mysql, request
+ *  Uses node.js with node modules plugapi, mysql, request
  *
  *  Run: 'node sparkle.js'
  *
@@ -119,11 +119,11 @@ process.on('message', function(data) {
 function initializeModules() {
 	//Creates the bot listener
 	try {
-		Bot = require('ttapi');
+		Bot = require('plugapi');
 	} catch(e) {
 		console.log(e);
-		console.log('It is likely that you do not have the ttapi node module installed.'
-			+ '\nUse the command \'npm install ttapi\' to install.');
+		console.log('It is likely that you do not have the plugpai node module installed.'
+			+ '\nUse the command \'npm install plugapi\' to install.');
 		process.exit(33);
 	}
 
@@ -142,7 +142,9 @@ function initializeModules() {
 		process.exit(33);
 	}
 
-	bot = new Bot(config.botinfo.auth, config.botinfo.userid, config.roomid);
+	bot = new Bot(config.botinfo.auth);
+
+    bot.connect(config.botinfo.roomid);
 
 	//Loads bot singalongs
 	if(config.responses.sing) {
@@ -384,7 +386,8 @@ global.output = function(data) {
 	if(data.destination == 'speak') {
 		bot.speak(data.text);
 	} else if(data.destination == 'pm') {
-		bot.pm(data.text, data.userid);
+        bot.speak(data.text);
+		//	bot.pm(data.text, data.userid); NO PLUG PM SUPPORT!
 	} else if(data.destination == 'http') {
 		response.writeHead(200, {'Content-Type':'text/plain'});
 		if(data.format == 'json') {
@@ -467,16 +470,16 @@ global.checkDjs = function() {
 		if(isdjing) {
             if(djs.length > 1) {
                 console.log("I should become a skipper now");
-                bot.playlistSwitch('blank');
+                //bot.playlistSwitch('blank');
             }
 			return;
 		}
         if(djs.length > 0) {
             console.log("I should be added as a skipper");
-            bot.playlistSwitch('blank');
+            //bot.playlistSwitch('blank');
         } else {
             console.log("I should be added as a player");
-            bot.playlistSwitch('Trance');
+            //bot.playlistSwitch('Trance');
         }
         console.log(bot.playlistListAll());
 		bot.addDj();
