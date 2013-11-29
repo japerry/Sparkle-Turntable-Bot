@@ -379,13 +379,15 @@ global.checkCooldown = function(userid) {
 }
 
 global.populateSongData = function(data) {
-	currentsong = data.room.metadata.current_song;
-	currentsong.artist = data.room.metadata.current_song.metadata.artist;
-	currentsong.song = data.room.metadata.current_song.metadata.song;
-	currentsong.up = data.room.metadata.upvotes;
-	currentsong.down = data.room.metadata.downvotes;
-	currentsong.listeners = data.room.metadata.listeners;
-	currentsong.started = data.room.metadata.current_song.starttime;
+	currentsong = data.room.media;
+	currentsong.artist = data.room.media.author;
+	currentsong.song = data.room.media.title;
+	currentsong.up = 1; //TODO: we need to update this dynamically
+	currentsong.down = 0; //TODO: we need to upadate this dynamically
+	currentsong.listeners = data.room.users.length;
+	currentsong.started = data.room.mediaStartTime;
+    currentsong.djid = data.room.currentDJ;
+    currentsong.length = data.room.media.duration;
 	currentsong.snags = 0;
 }
 
@@ -539,7 +541,7 @@ global.addToDb = function(data) {
 			currentsong.listeners,
 			currentsong.snags,
 			bonuspoints.length,
-            currentsong.metadata.length]);
+            currentsong.length]);
 }
 
 global.welcomeUser = function(name, id) {

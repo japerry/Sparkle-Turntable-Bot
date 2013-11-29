@@ -11,20 +11,18 @@ exports.readyEventHandler = function (data) {
 //Updates the currentsong array and users array with new room data.
 exports.roomChangedEventHandler = function(data) {
     console.log(data);
-//    moderators = data.room.metadata.moderator_id;
+    moderators = data.room.admins;
 
     //Fill currentsong array with room data
-    if ((data.room != null) && (data.room.metadata != null)) {
-        if (data.room.metadata.current_song != null) {
-            populateSongData(data);
-        }
+    if ((data.room != null) && (data.room.media != null)) {
+        populateSongData(data);
 
         //Creates the dj list
-        for (var i in data.room.metadata.djs) {
+        for (var i in data.room.djs) {
             if (config.enforcement.enforceroom) {
-                djs.push({id: data.room.metadata.djs[i], remaining: config.enforcement.songstoplay, lastActivity: new Date()});
+                djs.push({id: data.room.djs[i], remaining: config.enforcement.songstoplay, lastActivity: new Date()});
             } else {
-                djs.push({id: data.room.metadata.djs[i], remaining: Infinity});
+                djs.push({id: data.room.djs[i], remaining: Infinity});
             }
         }
     }
@@ -38,7 +36,7 @@ exports.roomChangedEventHandler = function(data) {
 
 
     //Repopulates usersList array.
-    var users = data.users;
+    var users = data.room.users;
     for (i in users) {
         var user = users[i];
         usersList[user.userid] = user;
@@ -62,10 +60,19 @@ exports.roomChangedEventHandler = function(data) {
 //Runs when a user updates their vote
 //Updates current song data and logs vote in console
 exports.updateVoteEventHandler = function (data) {
+    console(currentsong);
     //Update vote and listener count
-    currentsong.up = data.room.metadata.upvotes;
-    currentsong.down = data.room.metadata.downvotes;
-    currentsong.listeners = data.room.metadata.listeners;
+    /*
+     Plug has a new way of doing votes. Its held inside this array:
+       "votes": {
+            "50aeb252877b9217e2fc4a70": 1
+        },
+        So we need to loop through the array and find votes. Ugh.
+        Right now setting static. This handler won't really work.
+     */
+    currentsong.up = 1;
+    currentsong.down = 0;
+    currentsong.listeners = 1;
 
     if (currentsong.up - currentsong.down < -1 ) {
         bot.speak('@, the room has decided this song does not belong here. You have 5 seconds to skip!');
@@ -93,7 +100,7 @@ exports.updateVoteEventHandler = function (data) {
 
 	// Update the last activity for the dj if it was sending the message and remove the warning
 	if(config.enforcement.enforceroom && config.enforcement.idle.idlerules) {
-		var votes = data.room.metadata.votelog;
+		var votes = data.room.votes;
 		for(var i = 0; i < votes.length; i++) {
 			var vote = votes[i];
 			var userid = vote[0];
@@ -109,6 +116,7 @@ exports.updateVoteEventHandler = function (data) {
     //Log vote in console
     //Note: Username only displayed for upvotes, since TT doesn't broadcast
     //      username for downvote events.
+    /*
     if (config.consolelog) {
         if (data.room.metadata.votelog[0][1] == 'up') {
             console.log('\u001b[32m[ Vote ] (+'
@@ -120,6 +128,7 @@ exports.updateVoteEventHandler = function (data) {
                 + ') Downvote\u001b[0m');
         }
     }
+    */
 }
 
 //Runs when a user joins
@@ -348,7 +357,7 @@ exports.endSongEventHandler = function (data) {
 //logs new song in console, auto-awesomes song
 exports.newSongEventHandler = function (data) {
     //Skip Song if there are other DJs up
-    if (isBot(data.room.metadata.current_dj) && djs.length != 1) {
+    if (isBot(data.room.current_dj) && djs.length != 1) {
         bot.skipSong();
     }
     //Populate new song data in currentsong
@@ -384,7 +393,7 @@ exports.newSongEventHandler = function (data) {
 			} else if(currentsong.down > currentsong.up) {
 				bot.vote('down');
 			}
-		}, time * currentsong.metadata.length * 1000);
+		}, time * currentsong.duration * 1000);
 	}
 
     //Decrement partialdjs list
