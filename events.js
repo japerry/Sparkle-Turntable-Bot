@@ -16,7 +16,9 @@ exports.roomChangedEventHandler = function(data) {
       console.log('Error loading the room. Check your JSON file, or possibly plug.dj is denying requests. Sorry!');
       process.exit(33);
     }
-    moderators = data.room.admins;
+    if(data.room.admins) {
+        moderators = data.room.admins;
+    }
 
     //Fill currentsong array with room data
     if ((data.room != null) && (data.room.media != null)) {
@@ -41,7 +43,9 @@ exports.roomChangedEventHandler = function(data) {
 
 
     //Repopulates usersList array.
-    var users = data.room.users;
+    if(data.room.users) {
+        var users = data.room.users;
+    }
     for (i in users) {
         var user = users[i];
         usersList[user.userid] = user;
