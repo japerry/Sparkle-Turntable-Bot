@@ -98,7 +98,8 @@ bot.on('snagged', events.snagEventHandler);
 
 bot.on('booted_user', events.bootedUserEventHandler);
 
-bot.on('pmmed', events.pmEventHandler);
+//NO PMS!
+//bot.on('pmmed', events.pmEventHandler);
 
 bot.on('update_user', events.updateUserEventHandler);
 
