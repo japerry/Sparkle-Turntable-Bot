@@ -148,7 +148,7 @@ function initializeModules() {
     console.log(config);
     bot.connect();
     bot.on('connected', function() {
-      bot.joinRoom(config.room, function(data) {
+      bot.joinRoom(config.roomid, function(data) {
         console.log(JSON.stringify(data));
       });
     });
