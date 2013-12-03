@@ -1,6 +1,6 @@
 exports.name = 'getuserid';
 exports.hidden = false;
-exports.enabled = true;
+exports.enabled = false;
 exports.matchStart = true;
 exports.handler = function(data) {
     var nameforid = data.text.substring(10);
@@ -13,5 +13,5 @@ exports.handler = function(data) {
             output({text: response, destination: data.source, userid: data.userid});
         }
     });
-    
+
 }

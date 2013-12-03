@@ -1,8 +1,8 @@
-exports.name = 'can i step up';
+exports.name = 'anh';
 exports.hidden = false;
 exports.enabled = true;
-exports.matchStart = true;
+exports.matchStart = false;
 exports.handler = function(data) {
-    var response = canUserStep(data.name, data.userid);
+    var response = ('/tableflip');
     output({text: response, destination: data.source, userid: data.userid});
 }

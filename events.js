@@ -10,8 +10,8 @@ exports.readyEventHandler = function (data) {
 //Runs when the room is changed.
 //Updates the currentsong array and users array with new room data.
 exports.roomChangedEventHandler = function(data) {
-    console.log("Entering room");
-    console.log(data);
+    //console.log("Entering room");
+    //console.log(data);
     if(!data) {
       console.log('Error loading the room. Check your JSON file, or possibly plug.dj is denying requests. Sorry!');
       process.exit(33);
@@ -23,7 +23,7 @@ exports.roomChangedEventHandler = function(data) {
 */
     //Fill currentsong array with room data
     if ((data.room != null) && (data.room.media != null)) {
-        populateSongData(data);
+        populateSongData(data.room);
 
         //Creates the dj list
         for (var i in data.room.djs) {
@@ -72,7 +72,7 @@ exports.roomChangedEventHandler = function(data) {
 //Runs when a user updates their vote
 //Updates current song data and logs vote in console
 exports.updateVoteEventHandler = function (data) {
-    console.log(currentsong);
+    //console.log(currentsong);
     //Update vote and listener count
     /*
      Plug has a new way of doing votes. Its held inside this array:
@@ -147,7 +147,7 @@ exports.updateVoteEventHandler = function (data) {
 //Adds user to userlist, logs in console, and greets user in chat.
 exports.registeredEventHandler = function (data) {
     //Log event in console
-    console.log(data);
+    // console.log(data);
     if (config.consolelog) {
         console.log('\u001b[34m[Joined] ' + data.id + '\u001b[0m');
     }
@@ -276,7 +276,7 @@ exports.speakEventHandler = function (data) {
     if (config.consolelog) {
         console.log('[ Chat ] ' + data.from +': ' + data.message);
     }
-    console.log(data);
+    //console.log(data);
 
     //Log in db (chatlog table)
     if (config.database.usedb && config.database.logchat) {
@@ -357,24 +357,21 @@ exports.endSongEventHandler = function (data) {
 //Populates currentsong data, tells bot to step down if it just played a song,
 //logs new song in console, auto-awesomes song
 exports.newSongEventHandler = function (data) {
-    //Skip Song if there are other DJs up
-    if (isBot(data.room.current_dj) && djs.length != 1) {
-        bot.skipSong();
-    }
+    console.log("new song!");
+    console.log(data);
     //Populate new song data in currentsong
     populateSongData(data);
-
-    //Enforce stepdown rules
-    if (usertostep != null) {
-        if (config.enforcement.enforceroom) {
-            enforceRoom();
-        }
-    }
 
     //Log in console
     if (config.consolelog) {
         console.log('\u001b[37mNow Playing: ' + currentsong.artist + ' - ' + currentsong.song + '\u001b[0m');
     }
+
+    //Skip the DJ when time runs out
+    setTimeout(function() {
+      console.log("skipping song");
+      bot.skipSong();
+    }, ((data.media.duration * 1000) - 2000));
 
     //Reset bonus points
     bonusvote = false;

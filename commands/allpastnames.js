@@ -1,13 +1,13 @@
 exports.name = 'allpastnames';
 exports.hidden = false;
-exports.enabled = true;
+exports.enabled = false;
 exports.matchStart = true;
 exports.handler = function(data) {
     if (config.database.usedb) {
         if (data.source != 'pm') {
             output({text: 'That is a PM-only command.', destination: data.source, userid: data.userid});
         }
-		else {		
+		else {
             client.query('SELECT username FROM ' + config.database.dbname + '.' + config.database.tablenames.user
             + ' WHERE (userid like (SELECT '
             + 'userid FROM ' + config.database.dbname + '.' + config.database.tablenames.user

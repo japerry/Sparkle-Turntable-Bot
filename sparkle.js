@@ -88,7 +88,7 @@ bot.on('nosong', events.noSongEventHandler);
 
 bot.on('endsong', events.endSongEventHandler);
 
-bot.on('newsong', events.newSongEventHandler);
+bot.on('djAdvance', events.newSongEventHandler);
 
 bot.on('rem_dj', events.remDjEventHandler);
 
@@ -374,15 +374,15 @@ global.checkCooldown = function(userid) {
 }
 
 global.populateSongData = function(data) {
-	currentsong = data.room.media;
-	currentsong.artist = data.room.media.author;
-	currentsong.song = data.room.media.title;
+	currentsong = data.media;
+	currentsong.artist = data.media.author;
+	currentsong.song = data.media.title;
 	currentsong.up = 1; //TODO: we need to update this dynamically
 	currentsong.down = 0; //TODO: we need to upadate this dynamically
-	currentsong.listeners = data.room.users.length;
-	currentsong.started = data.room.mediaStartTime;
-    currentsong.djid = data.room.currentDJ;
-    currentsong.length = data.room.media.duration;
+	currentsong.listeners = 0; //TODO: data.users.length is not correct at all times
+	currentsong.started = data.mediaStartTime;
+    currentsong.djid = data.currentDJ;
+    currentsong.length = data.media.duration;
 	currentsong.snags = 0;
 }
 

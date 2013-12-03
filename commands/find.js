@@ -1,6 +1,6 @@
 exports.name = '.find';
 exports.hidden = false;
-exports.enabled = true;
+exports.enabled = false;
 exports.matchStart = true;
 exports.handler = function(data) {
     var location = data.text.split(' ', 2);
@@ -16,10 +16,10 @@ exports.handler = function(data) {
 						var botresponse = 'Nearest ' + thingToFind + ' location to ' + location[1] + ': ';
 							botresponse += formatted.query.results.Result.Title + ' ('
 								+ formatted.query.results.Result.Rating.AverageRating + ' ☆) '
-								+ formatted.query.results.Result.Address + ', ' 
+								+ formatted.query.results.Result.Address + ', '
 								+ formatted.query.results.Result.City + ' ('
 								+ formatted.query.results.Result.Distance + ' miles).  ';
-						
+
 						output({text: botresponse, destination: data.source, userid: data.userid});
 					} catch (e) {
 						var response = ('Sorry, no locations found.');
