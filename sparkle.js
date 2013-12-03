@@ -82,7 +82,7 @@ bot.on('registered', events.registeredEventHandler);
 
 bot.on('deregistered', events.deregisteredEventHandler);
 
-bot.on('speak', events.speakEventHandler);
+bot.on('chat', events.speakEventHandler);
 
 bot.on('nosong', events.noSongEventHandler);
 
@@ -115,15 +115,13 @@ process.on('message', function(data) {
 	}
 });
 
-// Functions
-
 function initializeModules() {
 	//Creates the bot listener
 	try {
 		Bot = require('plugapi');
 	} catch(e) {
 		console.log(e);
-		console.log('It is likely that you do not have the plugpai node module installed.'
+		console.log('It is likely that you do not have the plugapi node module installed.'
 			+ '\nUse the command \'npm install plugapi\' to install.');
 		process.exit(33);
 	}
@@ -143,16 +141,14 @@ function initializeModules() {
 		process.exit(33);
 	}
 
-	bot = new Bot(config.botinfo.auth);
+	bot = new Bot(config.botinfo.auth, config.updatecode);
     console.log("Starting Up Sparkle Bot!");
-    bot.connect();
-    bot.on('connected', function() {
-      bot.joinRoom(config.roomid, function(data) {
-        console.log(JSON.stringify(data));
-      });
+    bot.connect(config.roomid);
+    bot.on('roomJoin', function(data) {
+      console.log("Joined " + config.roomid + ": ", data);
+      console.log(JSON.stringify(data));
+      //bot.speak('Welcome to TO!');
     });
-
-
 
 	//Loads bot singalongs
 	if(config.responses.sing) {

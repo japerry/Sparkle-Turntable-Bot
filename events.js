@@ -16,10 +16,11 @@ exports.roomChangedEventHandler = function(data) {
       console.log('Error loading the room. Check your JSON file, or possibly plug.dj is denying requests. Sorry!');
       process.exit(33);
     }
+/*
     if(data.room.admins) {
         moderators = data.room.admins;
     }
-
+*/
     //Fill currentsong array with room data
     if ((data.room != null) && (data.room.media != null)) {
         populateSongData(data);
@@ -43,13 +44,15 @@ exports.roomChangedEventHandler = function(data) {
 
 
     //Repopulates usersList array.
+/*
     if(data.room.users) {
         var users = data.room.users;
     }
     for (i in users) {
         var user = users[i];
-        usersList[user.userid] = user;
+        usersList[user.id] = user;
     }
+
 
     //Adds all active users to the users table - updates lastseen if we've seen
     //them before, adds a new entry if they're new or have changed their username
@@ -63,13 +66,13 @@ exports.roomChangedEventHandler = function(data) {
                 [users[i].userid, users[i].name]);
         }
     }
-
+*/
 }
 
 //Runs when a user updates their vote
 //Updates current song data and logs vote in console
 exports.updateVoteEventHandler = function (data) {
-    console(currentsong);
+    console.log(currentsong);
     //Update vote and listener count
     /*
      Plug has a new way of doing votes. Its held inside this array:
@@ -144,20 +147,14 @@ exports.updateVoteEventHandler = function (data) {
 //Adds user to userlist, logs in console, and greets user in chat.
 exports.registeredEventHandler = function (data) {
     //Log event in console
+    console.log(data);
     if (config.consolelog) {
-        console.log('\u001b[34m[Joined] ' + data.user[0].name + '\u001b[0m');
-    }
-
-    //Stop DJing, Waitlist, and Enforcment if TO Bot is in the room.
-    if (('4e485d0ca3f751044e0ad952' in usersList) && config.enforcement.waitlist == true && config.enforcement.enforceroom == true) {
-        config.enforcement.waitlist = false;
-        config.enforcement.enforceroom = false;
-        bot.speak('Hello Trance Out! Transfering over management abilities...');
+        console.log('\u001b[34m[Joined] ' + data.id + '\u001b[0m');
     }
 
     //Add user to usersList
-    var user = data.user[0];
-    usersList[user.userid] = user;
+    var user = data;
+    usersList[user.id] = user;
     if (currentsong != null) {
         currentsong.listeners++;
     }
@@ -174,7 +171,7 @@ exports.registeredEventHandler = function (data) {
     if(config.responses.welcomeusers && user.registered != null) {
         if (config.database.usedb && !config.responses.alwayspm) {
                    client.query('SELECT lastseen, NOW() AS now FROM ' + config.database.dbname + '.' + config.database.tablenames.user
-                       + ' WHERE userid LIKE \'' + user.userid + '\' ORDER BY lastseen desc LIMIT 1',
+                       + ' WHERE userid LIKE \'' + user.id + '\' ORDER BY lastseen desc LIMIT 1',
                        function cb(error, results, fields) {
                            if (results != null && results[0] != null) {
                                var time = results[0]['lastseen'];
@@ -182,18 +179,18 @@ exports.registeredEventHandler = function (data) {
                                //Send a welcome PM if user hasn't joined in 36+ hours
                                if ((new Date().getTime() - time.getTime()) > 129600000) {
                                    setTimeout(function () {
-                                       welcomeUser(user.name, user.userid);
+                                       welcomeUser(user.username, user.id);
                                    }, 1000);
                                }
                            } else {
                                setTimeout(function () {
-                                   welcomeUser(user.name, user.userid);
+                                   welcomeUser(user.username, user.id);
                                }, 1000);
                            }
                    });
                } else {
                     setTimeout(function () {
-                        welcomeUser(user.name, user.userid);
+                        welcomeUser(user.username, user.id);
                     }, 1000);
                }
     }
@@ -203,7 +200,7 @@ exports.registeredEventHandler = function (data) {
     if (config.responses.welcomepm) {
         if (config.database.usedb && !config.responses.alwayspm) {
             client.query('SELECT lastseen, NOW() AS now FROM ' + config.database.dbname + '.' + config.database.tablenames.user
-                + ' WHERE userid LIKE \'' + user.userid + '\' ORDER BY lastseen desc LIMIT 1',
+                + ' WHERE userid LIKE \'' + user.id + '\' ORDER BY lastseen desc LIMIT 1',
                 function cb(error, results, fields) {
                     if (results != null && results[0] != null) {
                         var time = results[0]['lastseen'];
@@ -211,16 +208,16 @@ exports.registeredEventHandler = function (data) {
                         //Send a welcome PM if user hasn't joined in 36+ hours
                         if ((new Date().getTime() - time.getTime()) > 129600000) {
                             output({text: config.responses.pmgreet,
-                                destination: 'pm', userid: user.userid});
+                                destination: 'pm', userid: user.id});
                         }
                     } else {
                         output({text: config.responses.pmgreet,
-                            destination: 'pm', userid: user.userid});
+                            destination: 'pm', userid: user.id});
                     }
             });
         } else {
             output({text: config.responses.pmgreet,
-                destination: 'pm', userid: user.userid});
+                destination: 'pm', userid: user.id});
         }
     }
     */
@@ -230,14 +227,14 @@ exports.registeredEventHandler = function (data) {
         client.query('INSERT INTO ' + config.database.dbname + '.' + config.database.tablenames.user
         + ' (userid, username, lastseen)'
             + 'VALUES (?, ?, NOW()) ON DUPLICATE KEY UPDATE lastseen = NOW()',
-            [user.userid, user.name]);
+            [user.id, user.username]);
 
     //See if banned
         client.query('SELECT userid, banned_by, DATE_FORMAT(timestamp, \'%c/%e/%y\')'
-            + ' FROM ' + config.database.dbname + '.' + config.database.tablenames.banned + ' WHERE userid LIKE \'' + user.userid + '\'',
+            + ' FROM ' + config.database.dbname + '.' + config.database.tablenames.banned + ' WHERE userid LIKE \'' + user.id + '\'',
         function cb (error, results, fields) {
             if (results != null && results.length > 0) {
-                bot.boot(user.userid, 'You were banned from this room by ' + results[0]['banned_by']
+                bot.boot(user.id, 'You were banned from this room by ' + results[0]['banned_by']
                     + ' on ' + results[0]['timestamp']);
             }
         });
@@ -249,13 +246,7 @@ exports.registeredEventHandler = function (data) {
 exports.deregisteredEventHandler = function (data) {
     //Log in console
     if (config.consolelog) {
-        console.log('\u001b[36m[ Left ] ' + data.user[0].name + '\u001b[0m');
-    }
-
-    if (!('4e485d0ca3f751044e0ad952' in usersList) && config.enforcement.waitlist == false && config.enforcement.enforceroom == false) {
-        config.enforcement.waitlist = true;
-        config.enforcement.enforceroom = true;
-        bot.speak('Goodbye Trance Out! Turning into superbot!');
+        console.log('\u001b[36m[ Left ] ' + data.username + '\u001b[0m');
     }
 
     currentsong.listeners--;
@@ -263,7 +254,7 @@ exports.deregisteredEventHandler = function (data) {
     //If waitlist, hold for 30 secs then remove
     if (config.enforcement.waitlist) {
         for (i in waitlist) {
-            if (waitlist[i].id == data.user[0].userid) {
+            if (waitlist[i].id == data.id) {
                 setTimeout(function() {
                     if (waitlist.length > 0) {
                         waitlist.splice(i, 1);
@@ -274,7 +265,7 @@ exports.deregisteredEventHandler = function (data) {
     }
     //Remove user from userlist
     //TODO: Replace this with a .splice fn
-    delete usersList[data.user[0].userid];
+    delete usersList[data.id];
 }
 
 //Runs when something is said in chat
@@ -283,12 +274,13 @@ exports.deregisteredEventHandler = function (data) {
 exports.speakEventHandler = function (data) {
     //Log in console
     if (config.consolelog) {
-        console.log('[ Chat ] ' + data.name +': ' + data.text);
+        console.log('[ Chat ] ' + data.from +': ' + data.message);
     }
+    console.log(data);
 
     //Log in db (chatlog table)
     if (config.database.usedb && config.database.logchat) {
-        var inputtext = data.text;
+        var inputtext = data.message;
         if (inputtext.length > 255) {
             inputtext = inputtext.substring(0, 255);
         }
@@ -300,7 +292,7 @@ exports.speakEventHandler = function (data) {
     //If it's a supported command, handle it
 
     if (config.responses.respond) {
-        handleCommand(data.name, data.userid, data.text.toLowerCase(), 'speak');
+        handleCommand(data.from, data.fromID, data.message.toLowerCase(), 'speak');
     }
 
 	// Update the last activity for the dj if it was sending the message and remove the warning
