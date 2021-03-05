@@ -22,13 +22,13 @@
     "SQL Tables": "SQL Tables"
   },
   "engines": {
-    "node": ">= 0.4.0"
+    "node": ">= 14"
   },
   "dependencies": {
-    "ttapi": ">= 2.1.8",
+    "mysql": "*",
     "request": "*",
-    "xml2js": ">= 0.1.13",
-    "mysql": "*"
+    "ttapi": "github:alaingilbert/Turntable-API#master",
+    "xml2js": ">= 0.1.13"
   },
   "devDependencies": {},
   "optionalDependencies": {},
